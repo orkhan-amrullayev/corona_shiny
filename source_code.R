@@ -5,7 +5,7 @@ output:
   flexdashboard::flex_dashboard:
     orientation: rows
     # social: ["facebook", "twitter", "linkedin"]
-    source_code: embed
+    #source_code: embed
     vertical_layout: fill
 ---
 
@@ -230,17 +230,17 @@ daily_confirmed %>%
   # ) %>%
   plotly::add_trace(
     x = ~date,
-    y = ~Italy,
+    y = ~Greece,
     type = "scatter",
     mode = "lines+markers",
-    name = "Italy"
+    name = "Greece"
   ) %>%
   plotly::add_trace(
     x = ~date,
-    y = ~Germany,
+    y = ~Portugal,
     type = "scatter",
     mode = "lines+markers",
-    name = "Germany"
+    name = "Portugal"
   ) %>%
   plotly::add_trace(
     x = ~date,
@@ -274,9 +274,9 @@ daily_confirmed %>%
 df_EU <- coronavirus %>%
   # dplyr::filter(date == max(date)) %>%
   dplyr::filter(country == "Azerbaijan" |
-    country == "France" |
-    country == "Italy" |
-    country == "Spain") %>%
+    country == "Greece" |
+    country == "Portugal" |
+    country == "Netherlands") %>%
   dplyr::group_by(country, type) %>%
   dplyr::summarise(total = sum(cases)) %>%
   tidyr::pivot_wider(
@@ -388,26 +388,18 @@ About
 
 **The Coronavirus Dashboard: the case of Azerbaijan**
 
-This [Coronavirus dashboard: the case of Azerbaijan] represents information about the pandemic in Azerbaijan. This dashboard is built with R using the R Markdown framework.
+This dashboard is built as a final project R Advanced course at University of Warsaw. It represents information about the pandemic in Azerbaijan. 
 
 **Code**
 
-The code behind this dashboard is available on [GitHub](https://github.com/){target="_blank"}.
+The code behind this dashboard is available on [GitHub](https://github.com/orkhan-amrullayev/corona_shiny){target="_blank"}.
 
 **Data**
 
 The input data for this dashboard is the dataset available from the [`{coronavirus}`](https://github.com/RamiKrispin/coronavirus){target="_blank"} R package.
 
-```
-install.packages("devtools")
-devtools::install_github("RamiKrispin/coronavirus")
-```
-
 The raw data is pulled from the Johns Hopkins University Center for Systems Science and Engineering (JHU CCSE).
 
-**Information**
-
-More information about this dashboard (and how to replicate it for your own country) can be found in this [article](https://statsandr.com/blog/how-to-create-a-simple-coronavirus-dashboard-specific-to-your-country-in-r/).
 
 **Update**
 
