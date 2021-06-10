@@ -4,63 +4,54 @@ author: "Orkhan Amrullayev"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
-    # social: ["facebook", "twitter", "linkedin"]
-    #source_code: embed
     vertical_layout: fill
 ---
 
+
 ```{r setup, include=FALSE}
 #------------------ Packages ------------------
+
 library(flexdashboard)
-install.packages("devtools")
-devtools::install_github("RamiKrispin/coronavirus", force = TRUE)
 library(coronavirus)
 data(coronavirus)
 # View(coronavirus)
 # max(coronavirus$date)
 
 `%>%` <- magrittr::`%>%`
+
 #------------------ Parameters ------------------
-# Set colors
-# https://www.w3.org/TR/css-color-3/#svg-color
+
+# Set colors - used: https://www.w3.org/TR/css-color-3/#svg-color
 confirmed_color <- "purple"
 active_color <- "#1f77b4"
 recovered_color <- "forestgreen"
 death_color <- "red"
 
-#------------- Function for Countries -----------
-select_country <- function(countryname){
-  df <- coronavirus %>%
-  # dplyr::filter(date == max(date)) %>%
-  dplyr::filter(country = countryname) %>%
+#------------------ Data ------------------
+
+dataf <- function(countryname){
+  coronavirus %>%
+  dplyr::filter(country == countryname) %>%
   dplyr::group_by(country, type) %>%
   dplyr::summarise(total = sum(cases)) %>%
   tidyr::pivot_wider(
     names_from = type,
     values_from = total
   ) %>%
-  # dplyr::mutate(unrecovered = confirmed - ifelse(is.na(recovered), 0, recovered) - ifelse(is.na(death), 0, death)) %>%
+
   dplyr::mutate(unrecovered = confirmed - ifelse(is.na(death), 0, death)) %>%
   dplyr::arrange(-confirmed) %>%
   dplyr::ungroup() %>%
-  dplyr::mutate(country = dplyr::if_else(country == "United Arab Emirates", "UAE", country)) %>%
-  dplyr::mutate(country = dplyr::if_else(country == "Mainland China", "China", country)) %>%
-  dplyr::mutate(country = dplyr::if_else(country == "North Macedonia", "N.Macedonia", country)) %>%
+
   dplyr::mutate(country = trimws(country)) %>%
-  return(dplyr::mutate(country = factor(country, levels = country)))
+  dplyr::mutate(country = factor(country, levels = country))
 }
-#--------------------------------------
 
+df <- dataf("Azerbaijan")
 
-select_country(Azerbaijan)
-
-
-
-#------------------ Data ------------------
-
-
-df_daily <- coronavirus %>%
-  dplyr::filter(country == "Azerbaijan") %>%
+countryf <- function(countryname) {
+  coronavirus %>%
+  dplyr::filter(country == countryname) %>%
   dplyr::group_by(date, type) %>%
   dplyr::summarise(total = sum(cases, na.rm = TRUE)) %>%
   tidyr::pivot_wider(
@@ -69,14 +60,16 @@ df_daily <- coronavirus %>%
   ) %>%
   dplyr::arrange(date) %>%
   dplyr::ungroup() %>%
-  #dplyr::mutate(active = confirmed - death - recovered) %>%
   dplyr::mutate(active = confirmed - death) %>%
   dplyr::mutate(
     confirmed_cum = cumsum(confirmed),
     death_cum = cumsum(death),
-    # recovered_cum = cumsum(recovered),
+    recovered_cum = cumsum(recovered),
     active_cum = cumsum(active)
   )
+}
+  
+df_daily <- countryf("Azerbaijan")
 
 
 df1 <- coronavirus %>% dplyr::filter(date == max(date))
@@ -116,6 +109,17 @@ valueBox(
 )
 ```
 
+### recovered {.value-box}
+
+```{r}
+
+valueBox(
+  value = paste(format(sum(df$recovered), big.mark = ","), "", sep = " "),
+  caption = "Recovered cases",
+  icon = "fas fa-user-md",
+  color = "blue"
+)
+```
 
 Row
 -----------------------------------------------------------------------
@@ -299,9 +303,6 @@ df_EU <- coronavirus %>%
   dplyr::mutate(unrecovered = confirmed - ifelse(is.na(death), 0, death)) %>%
   dplyr::arrange(confirmed) %>%
   dplyr::ungroup() %>%
-  dplyr::mutate(country = dplyr::if_else(country == "United Arab Emirates", "UAE", country)) %>%
-  dplyr::mutate(country = dplyr::if_else(country == "Mainland China", "China", country)) %>%
-  dplyr::mutate(country = dplyr::if_else(country == "North Macedonia", "N.Macedonia", country)) %>%
   dplyr::mutate(country = trimws(country)) %>%
   dplyr::mutate(country = factor(country, levels = country))
 
@@ -408,7 +409,7 @@ The code behind this dashboard is available on [GitHub](https://github.com/orkha
 
 **Data**
 
-The input data for this dashboard is the dataset available from the [`{coronavirus}`](https://github.com/RamiKrispin/coronavirus){target="_blank"} R package.
+The input data for this dashboard is the dataset available from the CORONAVIRUS R package.
 
 The raw data is pulled from the Johns Hopkins University Center for Systems Science and Engineering (JHU CCSE).
 
